@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using VvvfSimulator.GUI.Create.Waveform.Basic;
 using VvvfSimulator.GUI.Create.Waveform.Dipolar;
 using VvvfSimulator.GUI.Resource.Class;
-using static VvvfSimulator.VvvfStructs.PulseMode;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
 using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData;
 
 namespace VvvfSimulator.GUI.Create.Waveform

@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using VvvfSimulator.GUI.Resource.Class;
 using VvvfSimulator.GUI.Resource.Language;
-using static VvvfSimulator.VvvfCalculate;
+using static VvvfSimulator.Vvvf.Calculate;
 using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData.YamlControlData.YamlControlDataAmplitudeControl;
 
 namespace VvvfSimulator.GUI.Create.Waveform

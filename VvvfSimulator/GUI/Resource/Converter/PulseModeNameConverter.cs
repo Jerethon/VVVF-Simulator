@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using VvvfSimulator.GUI.Resource.Language;
-using static VvvfSimulator.VvvfStructs.PulseMode;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
 
 namespace VvvfSimulator.GUI.Resource.Converter
 {

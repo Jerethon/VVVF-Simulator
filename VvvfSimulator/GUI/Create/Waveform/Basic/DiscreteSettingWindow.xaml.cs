@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using VvvfSimulator.GUI.Resource.Class;
 using VvvfSimulator.GUI.Resource.Language;
-using static VvvfSimulator.VvvfStructs;
+using static VvvfSimulator.Vvvf.Struct;
 
 namespace VvvfSimulator.GUI.Create.Waveform.Basic
 {

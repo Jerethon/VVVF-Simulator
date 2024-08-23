@@ -42,6 +42,8 @@
     <system:String x:Key="MainWindow.Menu.Generate.SourceCode.RPi3">RPi3</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio">Audio</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF">VVVF</system:String>
+    <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF.Line">Line Output</system:String>
+    <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF.Phases">Phase Output</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio.Train">Train</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Movie">Movie</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Movie.Control">Control</system:String>
@@ -91,7 +93,8 @@
     <system:String x:Key="MainWindow.TabControl.Accelerate">Accelerate</system:String>
     <system:String x:Key="MainWindow.TabControl.Brake">Brake</system:String>
 
-    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf">VVVF Audio Generation ：</system:String>
+    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf.Line">Line Output Audio Generation : </system:String>
+    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf.Phases">Phase Output Audio Generation ：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Train">Train Audio Generation：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Movie.Control.Original">Control(Design1) Movie Generation：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Movie.Control.Original2">Control(Design2) Movie Generation：</system:String>
@@ -149,6 +152,8 @@
     <system:String x:Key="TaskViewer.Status.Canceled">Canceled</system:String>
     <system:String x:Key="TaskViewer.Status.Complete">Complete</system:String>
     <system:String x:Key="TaskViewer.Status.Running">Running</system:String>
+
+    <system:String x:Key="BitmapViewer.Title.Default">Image Viewer</system:String>
 
     <system:String x:Key="TrainAudio.SettingWindow.Title">Train Sound Setting</system:String>
 

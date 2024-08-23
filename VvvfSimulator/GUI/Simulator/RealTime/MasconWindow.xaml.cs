@@ -6,13 +6,13 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using VvvfSimulator.GUI.Resource.Theme;
 using VvvfSimulator.GUI.Resource.Class;
+using VvvfSimulator.GUI.Resource.Theme;
 using VvvfSimulator.GUI.Simulator.RealTime.Setting;
 using static VvvfSimulator.Generation.Audio.GenerateRealTimeCommon;
-using static VvvfSimulator.VvvfCalculate;
-using static VvvfSimulator.VvvfStructs;
-using static VvvfSimulator.VvvfStructs.PulseMode;
+using static VvvfSimulator.Vvvf.Calculate;
+using static VvvfSimulator.Vvvf.Struct;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
 
 namespace VvvfSimulator.GUI.Simulator.RealTime
 {
@@ -38,8 +38,8 @@ namespace VvvfSimulator.GUI.Simulator.RealTime
                 while (!Param.Quit)
                 {
                     System.Threading.Thread.Sleep(20);
-                    Model.sine_freq = Param.Control.GetVideoSineFrequency();
-                    Model.pulse_state = GetPulseName();
+                    Model.SineFrequency = Param.Control.GetVideoSineFrequency();
+                    Model.PulseState = GetPulseName();
                 }
             });
             Task.Run(() => {
@@ -48,7 +48,7 @@ namespace VvvfSimulator.GUI.Simulator.RealTime
                     VvvfValues solve_control = Param.Control.Clone();
                     solve_control.SetRandomFrequencyMoveAllowed(false);
                     double voltage = Generation.Video.ControlInfo.GenerateControlCommon.GetVoltageRate(solve_control, Param.VvvfSoundData, false) * 100;
-                    Model.voltage = voltage;
+                    Model.Voltage = voltage;
                 }
             });
         }
@@ -96,30 +96,23 @@ namespace VvvfSimulator.GUI.Simulator.RealTime
             public Brush P4 { get { return _P4; } set { _P4 = value; RaisePropertyChanged(nameof(P4)); } }
 
 
-            private double _sine_freq = 0;
-            public double sine_freq { get { return _sine_freq; } set { _sine_freq = value; RaisePropertyChanged(nameof(sine_freq)); } }
+            private double _SineFrequency = 0;
+            public double SineFrequency { get { return _SineFrequency; } set { _SineFrequency = value; RaisePropertyChanged(nameof(SineFrequency)); } }
 
-            private double _voltage = 0;
-            public double voltage { get { return _voltage; } set { _voltage = value; RaisePropertyChanged(nameof(voltage)); } }
+            private double _Voltage = 0;
+            public double Voltage { get { return _Voltage; } set { _Voltage = value; RaisePropertyChanged(nameof(Voltage)); } }
 
-            private String _pulse_state = PulseModeName.Async.ToString();
-            public String pulse_state { get { return _pulse_state; } set { _pulse_state = value; RaisePropertyChanged(nameof(pulse_state)); } }
+            private string _PulseState = PulseModeName.Async.ToString();
+            public string PulseState { get { return _PulseState; } set { _PulseState = value; RaisePropertyChanged(nameof(PulseState)); } }
         };
-        private String GetPulseName()
+        private string GetPulseName()
         {
             // Recalculate
             VvvfValues solve_control = Param.Control.Clone();
             Task re_calculate = Task.Run(() =>
             {
                 solve_control.SetRandomFrequencyMoveAllowed(false);
-                ControlStatus cv = new ControlStatus
-                {
-                    brake = solve_control.IsBraking(),
-                    mascon_on = !solve_control.IsMasconOff(),
-                    free_run = solve_control.IsFreeRun(),
-                    wave_stat = solve_control.GetControlFrequency()
-                };
-                PwmCalculateValues calculated_Values = Yaml.VvvfSound.YamlVvvfWave.CalculateYaml(solve_control, cv, Param.VvvfSoundData);
+                PwmCalculateValues calculated_Values = Yaml.VvvfSound.YamlVvvfWave.CalculateYaml(solve_control, Param.VvvfSoundData);
                 CalculatePhases(solve_control, calculated_Values, 0);
             });
             re_calculate.Wait();
@@ -251,14 +244,15 @@ namespace VvvfSimulator.GUI.Simulator.RealTime
                 if (serialPort.IsOpen) serialPort.Close();
                 try
                 {
-                    serialPort = new SerialPort(MasconComPort);
-
-                    serialPort.BaudRate = 9600;
-                    serialPort.Parity = Parity.None;
-                    serialPort.StopBits = StopBits.One;
-                    serialPort.DataBits = 8;
-                    serialPort.Handshake = Handshake.None;
-                    serialPort.DtrEnable = true;
+                    serialPort = new SerialPort(MasconComPort)
+                    {
+                        BaudRate = 9600,
+                        Parity = Parity.None,
+                        StopBits = StopBits.One,
+                        DataBits = 8,
+                        Handshake = Handshake.None,
+                        DtrEnable = true
+                    };
 
                     serialPort.DataReceived += new SerialDataReceivedEventHandler(OnReceived);
 
@@ -346,8 +340,7 @@ namespace VvvfSimulator.GUI.Simulator.RealTime
 
         private void OnWindowControlButtonClick(object sender, RoutedEventArgs e)
         {
-            Button? btn = sender as Button;
-            if (btn == null) return;
+            if (sender is not Button btn) return;
             string? tag = btn.Tag.ToString();
             if (tag == null) return;
 

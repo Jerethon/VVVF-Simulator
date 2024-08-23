@@ -1,11 +1,10 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using VvvfSimulator.GUI.Resource.Class;
 using VvvfSimulator.GUI.Resource.Language;
-using static VvvfSimulator.VvvfStructs;
-using static VvvfSimulator.VvvfStructs.PulseMode;
+using static VvvfSimulator.Vvvf.Struct;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
 using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData;
 
 namespace VvvfSimulator.GUI.Create.Waveform.Basic

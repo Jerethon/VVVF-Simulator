@@ -1,17 +1,17 @@
 ﻿using OpenCvSharp;
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using static VvvfSimulator.VvvfCalculate;
-using static VvvfSimulator.Generation.GenerateCommon;
-using System.Drawing.Drawing2D;
-using VvvfSimulator.Yaml.VvvfSound;
-using static VvvfSimulator.VvvfStructs;
-using static VvvfSimulator.Yaml.MasconControl.YamlMasconAnalyze;
-using static VvvfSimulator.VvvfStructs.PulseMode;
-using static VvvfSimulator.Generation.GenerateCommon.GenerationBasicParameter;
 using VvvfSimulator.GUI.Util;
+using VvvfSimulator.Yaml.VvvfSound;
+using static VvvfSimulator.Generation.GenerateCommon;
+using static VvvfSimulator.Generation.GenerateCommon.GenerationBasicParameter;
+using static VvvfSimulator.Vvvf.Calculate;
+using static VvvfSimulator.Vvvf.Struct;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
+using static VvvfSimulator.Yaml.MasconControl.YamlMasconAnalyze;
 
 namespace VvvfSimulator.Generation.Video.ControlInfo
 {
@@ -48,7 +48,7 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
             //Abs
             if (mode == PulseModeName.P_Wide_3)
-                return new string[] { "Wide 3 Pulse" };
+                return ["Wide 3 Pulse"];
 
             if (mode.ToString().StartsWith("CHM"))
             {
@@ -60,7 +60,7 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
                 String final_mode_name = ((contain_wide) ? "Wide " : "") + mode_name_type[1] + " Pulse";
 
-                return new string[] { final_mode_name, "Current Harmonic Minimum" };
+                return [final_mode_name, "Current Harmonic Minimum"];
             }
             else if (mode.ToString().StartsWith("SHE"))
             {
@@ -72,7 +72,7 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
                 String final_mode_name = (contain_wide) ? "Wide " : "" + mode_name_type[1] + " Pulse";
 
-                return new string[] { final_mode_name, "Selective Harmonic Elimination" };
+                return [final_mode_name, "Selective Harmonic Elimination"];
             }
             else if (mode.ToString().StartsWith("HOP"))
             {
@@ -84,7 +84,7 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
                 String final_mode_name = (contain_wide) ? "Wide " : "" + mode_name_type[1] + " Pulse";
 
-                return new string[] { final_mode_name, "High efficiency Over-modulation" };
+                return [final_mode_name, "High efficiency Over-modulation"];
             }
             else
             {
@@ -94,8 +94,8 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
                 mode_name += mode_name_type[1] + " Pulse";
 
-                if (control.GetVideoDipolar() == -1) return new string[] { mode_name };
-                else return new string[] { mode_name, "Dipolar : " + control.GetVideoDipolar().ToString("F1") };
+                if (control.GetVideoDipolar() == -1) return [mode_name];
+                else return [mode_name, "Dipolar : " + control.GetVideoDipolar().ToString("F1")];
             }
         }
         public static Bitmap GetImage(VvvfValues control, bool final_show)
@@ -283,9 +283,9 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
             MainWindow.Invoke(() => Viewer = new BitmapViewerManager());
             Viewer?.Show();
 
-            YamlVvvfSoundData vvvfData = generationBasicParameter.vvvfData;
-            YamlMasconDataCompiled masconData = generationBasicParameter.masconData;
-            ProgressData progressData = generationBasicParameter.progressData;
+            YamlVvvfSoundData vvvfData = generationBasicParameter.VvvfData;
+            YamlMasconDataCompiled masconData = generationBasicParameter.MasconData;
+            ProgressData progressData = generationBasicParameter.Progress;
 
             VvvfValues control = new();
             control.ResetControlValues();
@@ -309,14 +309,7 @@ namespace VvvfSimulator.Generation.Video.ControlInfo
 
             while (loop)
             {
-                ControlStatus cv = new()
-                {
-                    brake = control.IsBraking(),
-                    mascon_on = !control.IsMasconOff(),
-                    free_run = control.IsFreeRun(),
-                    wave_stat = control.GetControlFrequency()
-                };
-                PwmCalculateValues calculated_Values = YamlVvvfWave.CalculateYaml(control, cv, vvvfData);
+                PwmCalculateValues calculated_Values = YamlVvvfWave.CalculateYaml(control, vvvfData);
                 _ = CalculatePhases(control, calculated_Values, 0);
 
                 control.SetSineTime(0);

@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Windows;
-using static VvvfSimulator.MyMath;
-using static VvvfSimulator.VvvfStructs;
-using static VvvfSimulator.VvvfStructs.PulseMode;
-using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData.YamlControlData;
+using static VvvfSimulator.Vvvf.MyMath;
+using static VvvfSimulator.Vvvf.Struct;
+using static VvvfSimulator.Vvvf.Struct.PulseMode;
+using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData.YamlControlData.YamlControlDataAmplitudeControl.YamlControlDataAmplitude;
 
-namespace VvvfSimulator
+
+namespace VvvfSimulator.Vvvf
 {
-    public class VvvfCalculate
+    public class Calculate
     {
         //
         // Basic Calculation
@@ -86,7 +86,7 @@ namespace VvvfSimulator
             }
 
             BaseValue = BaseValue > 1 ? 1 : BaseValue < -1 ? -1 : BaseValue;
-            
+
             return BaseValue;
         }
 
@@ -101,7 +101,7 @@ namespace VvvfSimulator
         public static double DiscreteTimeLine(double x, int level, DiscreteTimeConfiguration.DiscreteTimeMode mode)
         {
             //int level = (discrete.ProportionToPulse ? sawCarrier : 1) * discrete.Steps;
-            double seed = (x % M_2PI) * level / M_2PI;
+            double seed = x % M_2PI * level / M_2PI;
             double time = mode switch
             {
                 DiscreteTimeConfiguration.DiscreteTimeMode.Left => Math.Ceiling(seed),
@@ -118,15 +118,15 @@ namespace VvvfSimulator
         public static int GetHopPulse(double x, double amplitude, int carrier, int width)
         {
             int totalSteps = carrier * 2;
-            double fixed_x = (x % M_PI) / (M_PI / (totalSteps));
+            double fixed_x = x % M_PI / (M_PI / totalSteps);
             double saw_value = -GetSaw(carrier * x);
             double modulated;
-            if (fixed_x > (totalSteps - 1)) modulated = -1;
-            else if (fixed_x > (totalSteps / 2) + width) modulated = 1;
-            else if (fixed_x > (totalSteps / 2) - width) modulated = 2 * amplitude - 1;
+            if (fixed_x > totalSteps - 1) modulated = -1;
+            else if (fixed_x > totalSteps / 2 + width) modulated = 1;
+            else if (fixed_x > totalSteps / 2 - width) modulated = 2 * amplitude - 1;
             else if (fixed_x > 1) modulated = 1;
             else modulated = -1;
-            if ((x % M_2PI) > M_PI) modulated = -modulated;
+            if (x % M_2PI > M_PI) modulated = -modulated;
 
             return ModulateSin(modulated, saw_value) * 2;
         }
@@ -136,8 +136,8 @@ namespace VvvfSimulator
             double saw = GetSaw(time * angle_frequency + initial_phase);
             if (saw_oppose)
                 saw = -saw;
-            double pwm = ((sin - saw > 0) ? 1 : -1) * voltage;
-            double nega_saw = (saw > 0) ? saw - 1 : saw + 1;
+            double pwm = (sin - saw > 0 ? 1 : -1) * voltage;
+            double nega_saw = saw > 0 ? saw - 1 : saw + 1;
             int gate = ModulateSin(pwm, nega_saw) * 2;
             return gate;
         }
@@ -147,7 +147,7 @@ namespace VvvfSimulator
             double saw = -GetSaw(x);
             if (saw_oppose)
                 saw = -saw;
-            double pwm = (saw > 0) ? voltage : -voltage;
+            double pwm = saw > 0 ? voltage : -voltage;
             int gate = ModulateSin(pwm, carrier_saw) * 2;
             return gate;
         }
@@ -162,9 +162,9 @@ namespace VvvfSimulator
             int flag,
             double time, double sin_angle_frequency, double initial_phase)
         {
-            double theta = (initial_phase + time * sin_angle_frequency) - (double)((int)((initial_phase + time * sin_angle_frequency) * M_1_2PI) * M_2PI);
+            double theta = initial_phase + time * sin_angle_frequency - (double)((int)((initial_phase + time * sin_angle_frequency) * M_1_2PI) * M_2PI);
 
-            int PWM_OUT = (((((theta <= alpha2) && (theta >= alpha1)) || ((theta <= alpha4) && (theta >= alpha3)) || ((theta <= alpha6) && (theta >= alpha5)) || ((theta <= M_PI - alpha1) && (theta >= M_PI - alpha2)) || ((theta <= M_PI - alpha3) && (theta >= M_PI - alpha4)) || ((theta <= M_PI - alpha5) && (theta >= M_PI - alpha6))) && ((theta <= M_PI) && (theta >= 0))) || (((theta <= M_PI - alpha7) && (theta >= alpha7)) && ((theta <= M_PI) && (theta >= 0)))) || ((!(((theta <= alpha2 + M_PI) && (theta >= alpha1 + M_PI)) || ((theta <= alpha4 + M_PI) && (theta >= alpha3 + M_PI)) || ((theta <= alpha6 + M_PI) && (theta >= alpha5 + M_PI)) || ((theta <= M_2PI - alpha1) && (theta >= M_2PI - alpha2)) || ((theta <= M_2PI - alpha3) && (theta >= M_2PI - alpha4)) || ((theta <= M_2PI - alpha5) && (theta >= M_2PI - alpha6))) && ((theta <= M_2PI) && (theta >= M_PI))) && !((theta <= M_2PI - alpha7) && (theta >= M_PI + alpha7)) && (theta <= M_2PI) && (theta >= M_PI)) ? 1 : -1;
+            int PWM_OUT = (theta <= alpha2 && theta >= alpha1 || theta <= alpha4 && theta >= alpha3 || theta <= alpha6 && theta >= alpha5 || theta <= M_PI - alpha1 && theta >= M_PI - alpha2 || theta <= M_PI - alpha3 && theta >= M_PI - alpha4 || theta <= M_PI - alpha5 && theta >= M_PI - alpha6) && theta <= M_PI && theta >= 0 || theta <= M_PI - alpha7 && theta >= alpha7 && theta <= M_PI && theta >= 0 || !(theta <= alpha2 + M_PI && theta >= alpha1 + M_PI || theta <= alpha4 + M_PI && theta >= alpha3 + M_PI || theta <= alpha6 + M_PI && theta >= alpha5 + M_PI || theta <= M_2PI - alpha1 && theta >= M_2PI - alpha2 || theta <= M_2PI - alpha3 && theta >= M_2PI - alpha4 || theta <= M_2PI - alpha5 && theta >= M_2PI - alpha6) && theta <= M_2PI && theta >= M_PI && !(theta <= M_2PI - alpha7 && theta >= M_PI + alpha7) && theta <= M_2PI && theta >= M_PI ? 1 : -1;
 
             int gate = flag == 'A' ? -PWM_OUT + 1 : PWM_OUT + 1;
             return gate;
@@ -192,7 +192,7 @@ namespace VvvfSimulator
             public double current = 0;
 
             public AmplitudeArgument() { }
-            public AmplitudeArgument(YamlControlDataAmplitudeControl.YamlControlDataAmplitude.YamlControlDataAmplitudeParameter config, double current)
+            public AmplitudeArgument(YamlControlDataAmplitudeParameter config, double current)
             {
                 change_const = config.CurveChangeRate;
                 this.current = current;
@@ -414,7 +414,7 @@ namespace VvvfSimulator
             if (pulse_mode.PulseName == PulseModeName.Async)
             {
 
-                double desire_saw_angle_freq = (freq_data.range == 0) ? freq_data.base_freq * M_2PI : GetRandomFrequency(freq_data, control) * M_2PI;
+                double desire_saw_angle_freq = freq_data.range == 0 ? freq_data.base_freq * M_2PI : GetRandomFrequency(freq_data, control) * M_2PI;
 
                 double saw_time = control.GetSawTime();
                 double saw_angle_freq = control.GetSawAngleFrequency();
@@ -436,7 +436,7 @@ namespace VvvfSimulator
                 if (pulse_mode.Shift)
                     saw_value = -saw_value;
 
-                double changed_saw = ((dipolar != -1) ? dipolar : 0.5) * saw_value;
+                double changed_saw = (dipolar != -1 ? dipolar : 0.5) * saw_value;
                 int pwm_value = ModulateSin(sin_value, changed_saw + 0.5) + ModulateSin(sin_value, changed_saw - 0.5);
 
                 return pwm_value;
@@ -459,7 +459,7 @@ namespace VvvfSimulator
                         int D = sine > 0 ? 1 : -1;
                         double voltage_fix = D * (1 - calculate_values.amplitude);
 
-                        int gate = (D * (sine - voltage_fix) > 0) ? D : 0;
+                        int gate = D * (sine - voltage_fix) > 0 ? D : 0;
                         gate += 1;
                         return gate;
                     }
@@ -471,7 +471,7 @@ namespace VvvfSimulator
 
                 double sin_value = GetSineValueWithHarmonic(pulse_mode.Clone(), sine_x, calculate_values.amplitude, control.GetGenerationCurrentTime(), initial_phase);
 
-                double changed_saw = ((dipolar != -1) ? dipolar : 0.5) * saw_value;
+                double changed_saw = (dipolar != -1 ? dipolar : 0.5) * saw_value;
                 int pwm_value = ModulateSin(sin_value, changed_saw + 0.5) + ModulateSin(sin_value, changed_saw - 0.5);
 
                 control.SetSawAngleFrequency(sine_angle_freq * pulses);
@@ -479,9 +479,8 @@ namespace VvvfSimulator
 
                 return pwm_value;
             }
-
-
         }
+
         public static int CalculateTwoLevel(VvvfValues control, PwmCalculateValues calculate_values, double initial_phase)
         {
             double sin_angle_freq = control.GetSineAngleFrequency();
@@ -506,7 +505,6 @@ namespace VvvfSimulator
             if (calculate_values.none)
                 return 0;
 
-
             // Async CHM SHE
             switch (pulse_name)
             {
@@ -515,7 +513,7 @@ namespace VvvfSimulator
 
                 case PulseModeName.Async:
                     {
-                        double desire_saw_angle_freq = (carrier_freq_data.range == 0) ? carrier_freq_data.base_freq * M_2PI : GetRandomFrequency(carrier_freq_data, control) * M_2PI;
+                        double desire_saw_angle_freq = carrier_freq_data.range == 0 ? carrier_freq_data.base_freq * M_2PI : GetRandomFrequency(carrier_freq_data, control) * M_2PI;
 
                         if (desire_saw_angle_freq == 0)
                             saw_time = 0;
@@ -541,27 +539,27 @@ namespace VvvfSimulator
                         if (pulse_mode.AltMode == PulseAlternativeMode.Default)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
-                                SwitchAngles._7Alpha[(int)(1000 * amplitude) + 1, 6] * M_PI_180,
-                                SwitchAngles._7Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
+                                SwitchAngleTable._7Alpha[(int)(1000 * amplitude) + 1, 6] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         else if (pulse_mode.AltMode == PulseAlternativeMode.Alt1)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
-                                SwitchAngles._7Alpha_Old[(int)(1000 * amplitude) + 1, 6] * M_PI_180,
-                                SwitchAngles._7OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
+                                SwitchAngleTable._7Alpha_Old[(int)(1000 * amplitude) + 1, 6] * M_PI_180,
+                                SwitchAngleTable._7OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         break;
@@ -570,13 +568,13 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_Wide_15:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 5] * M_PI_180,
-                           SwitchAngles._7WideAlpha[(int)(1000 * amplitude) - 999, 6] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 5] * M_PI_180,
+                           SwitchAngleTable._7WideAlpha[(int)(1000 * amplitude) - 999, 6] * M_PI_180,
                            'B', sin_time, sin_angle_freq, initial_phase);
                     }
 
@@ -585,27 +583,27 @@ namespace VvvfSimulator
                         if (pulse_mode.AltMode == PulseAlternativeMode.Default)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
-                                SwitchAngles._6Alpha[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._6Alpha[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
                                 M_PI_2,
-                                SwitchAngles._6Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._6Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         else if (pulse_mode.AltMode == PulseAlternativeMode.Alt1)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
-                                SwitchAngles._6Alpha_Old[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._6Alpha_Old[(int)(1000 * amplitude) + 1, 5] * M_PI_180,
                                 M_PI_2,
-                                SwitchAngles._6OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._6OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         break;
@@ -614,12 +612,12 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_Wide_13:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
-                           SwitchAngles._6WideAlpha[(int)(1000 * amplitude) - 999, 5] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
+                           SwitchAngleTable._6WideAlpha[(int)(1000 * amplitude) - 999, 5] * M_PI_180,
                            M_PI_2,
                            'A', sin_time, sin_angle_freq, initial_phase);
                     }
@@ -628,27 +626,27 @@ namespace VvvfSimulator
                         if (pulse_mode.AltMode == PulseAlternativeMode.Default)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._5Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._5Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._5Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._5Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._5Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._5Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._5Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._5Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._5Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._5Alpha[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
                                 M_PI_2,
                                 M_PI_2,
-                                SwitchAngles._5Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._5Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         else if (pulse_mode.AltMode == PulseAlternativeMode.Alt1)
                         {
                             return GetPulseWithSwitchAngle(
-                                SwitchAngles._5Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                                SwitchAngles._5Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                                SwitchAngles._5Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                                SwitchAngles._5Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                                SwitchAngles._5Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
+                                SwitchAngleTable._5Alpha_Old[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                                SwitchAngleTable._5Alpha_Old[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                                SwitchAngleTable._5Alpha_Old[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                                SwitchAngleTable._5Alpha_Old[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                                SwitchAngleTable._5Alpha_Old[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
                                 M_PI_2,
                                 M_PI_2,
-                                SwitchAngles._5OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
+                                SwitchAngleTable._5OldAlpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase
                             );
                         }
                         break;
@@ -657,11 +655,11 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_Wide_11:
                     {
                         return GetPulseWithSwitchAngle(
-                            SwitchAngles._5WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
-                            SwitchAngles._5WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
-                            SwitchAngles._5WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
-                            SwitchAngles._5WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
-                            SwitchAngles._5WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
+                            SwitchAngleTable._5WideAlpha[(int)(1000 * amplitude) - 999, 0] * M_PI_180,
+                            SwitchAngleTable._5WideAlpha[(int)(1000 * amplitude) - 999, 1] * M_PI_180,
+                            SwitchAngleTable._5WideAlpha[(int)(1000 * amplitude) - 999, 2] * M_PI_180,
+                            SwitchAngleTable._5WideAlpha[(int)(1000 * amplitude) - 999, 3] * M_PI_180,
+                            SwitchAngleTable._5WideAlpha[(int)(1000 * amplitude) - 999, 4] * M_PI_180,
                             M_PI_2,
                             M_PI_2,
                             'B', sin_time, sin_angle_freq, initial_phase);
@@ -669,22 +667,22 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_9:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._4Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                           SwitchAngles._4Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                           SwitchAngles._4Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                           SwitchAngles._4Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
+                           SwitchAngleTable._4Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                           SwitchAngleTable._4Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                           SwitchAngleTable._4Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                           SwitchAngleTable._4Alpha[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
-                           SwitchAngles._4Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
+                           SwitchAngleTable._4Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
                     }
                 case PulseModeName.CHMP_Wide_9:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._4WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
-                           SwitchAngles._4WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
-                           SwitchAngles._4WideAlpha[(int)(1000 * amplitude) - 799, 2] * M_PI_180,
-                           SwitchAngles._4WideAlpha[(int)(1000 * amplitude) - 799, 3] * M_PI_180,
+                           SwitchAngleTable._4WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
+                           SwitchAngleTable._4WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
+                           SwitchAngleTable._4WideAlpha[(int)(1000 * amplitude) - 799, 2] * M_PI_180,
+                           SwitchAngleTable._4WideAlpha[(int)(1000 * amplitude) - 799, 3] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
@@ -693,21 +691,21 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_7:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._3Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                           SwitchAngles._3Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                           SwitchAngles._3Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
+                           SwitchAngleTable._3Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                           SwitchAngleTable._3Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                           SwitchAngleTable._3Alpha[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
-                           SwitchAngles._3Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
+                           SwitchAngleTable._3Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
                     }
                 case PulseModeName.CHMP_Wide_7:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._3WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
-                           SwitchAngles._3WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
-                           SwitchAngles._3WideAlpha[(int)(1000 * amplitude) - 799, 2] * M_PI_180,
+                           SwitchAngleTable._3WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
+                           SwitchAngleTable._3WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
+                           SwitchAngleTable._3WideAlpha[(int)(1000 * amplitude) - 799, 2] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
@@ -717,20 +715,20 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_5:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._2Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                           SwitchAngles._2Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
+                           SwitchAngleTable._2Alpha[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
+                           SwitchAngleTable._2Alpha[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
-                           SwitchAngles._2Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
+                           SwitchAngleTable._2Alpha_Polary[(int)(1000 * amplitude) + 1], sin_time, sin_angle_freq, initial_phase);
                     }
                 case PulseModeName.CHMP_Wide_5:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._2WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
-                           SwitchAngles._2WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
+                           SwitchAngleTable._2WideAlpha[(int)(1000 * amplitude) - 799, 0] * M_PI_180,
+                           SwitchAngleTable._2WideAlpha[(int)(1000 * amplitude) - 799, 1] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
@@ -741,7 +739,7 @@ namespace VvvfSimulator
                 case PulseModeName.CHMP_Wide_3:
                     {
                         return GetPulseWithSwitchAngle(
-                           SwitchAngles._WideAlpha[(int)(500 * amplitude) + 1] * M_PI_180,
+                           SwitchAngleTable._WideAlpha[(int)(500 * amplitude) + 1] * M_PI_180,
                            M_PI_2,
                            M_PI_2,
                            M_PI_2,
@@ -752,52 +750,86 @@ namespace VvvfSimulator
                     }
                 case PulseModeName.SHEP_3:
                     {
-                        return GetPulseWithSwitchAngle(
-                           SwitchAngles._1Alpha_SHE[(int)(1000 * amplitude) + 1] * M_PI_180,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           'B', sin_time, sin_angle_freq, initial_phase);
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She3Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She3Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        }
+                        break;
                     }
                 case PulseModeName.SHEP_5:
+                    switch (pulse_mode.AltMode)
                     {
-                        return GetPulseWithSwitchAngle(
-                           SwitchAngles._2Alpha_SHE[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                           SwitchAngles._2Alpha_SHE[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           M_PI_2,
-                           'A', sin_time, sin_angle_freq, initial_phase);
+                        case PulseAlternativeMode.Default:
+                            return CustomPwm.She5Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        case PulseAlternativeMode.Alt1:
+                            return CustomPwm.She5Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        case PulseAlternativeMode.Alt2:
+                            return CustomPwm.She5Alt2.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        default: break;
                     }
+                    break;
                 case PulseModeName.SHEP_7:
                     {
-                        return GetPulseWithSwitchAngle(
-                              SwitchAngles._3Alpha_SHE[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                              SwitchAngles._3Alpha_SHE[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                              SwitchAngles._3Alpha_SHE[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                              M_PI_2,
-                              M_PI_2,
-                              M_PI_2,
-                              M_PI_2,
-                              'B', sin_time, sin_angle_freq, initial_phase);
-
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She7Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She7Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        }
+                        break;
+                    }
+                case PulseModeName.SHEP_9:
+                    {
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She9Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She9Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt2:
+                                return CustomPwm.She9Alt2.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                        }
+                        break;
                     }
                 case PulseModeName.SHEP_11:
                     {
-                        return GetPulseWithSwitchAngle(
-                              SwitchAngles._5Alpha_SHE[(int)(1000 * amplitude) + 1, 0] * M_PI_180,
-                              SwitchAngles._5Alpha_SHE[(int)(1000 * amplitude) + 1, 1] * M_PI_180,
-                              SwitchAngles._5Alpha_SHE[(int)(1000 * amplitude) + 1, 2] * M_PI_180,
-                              SwitchAngles._5Alpha_SHE[(int)(1000 * amplitude) + 1, 3] * M_PI_180,
-                              SwitchAngles._5Alpha_SHE[(int)(1000 * amplitude) + 1, 4] * M_PI_180,
-                              M_PI_2,
-                              M_PI_2,
-                              'A', sin_time, sin_angle_freq, initial_phase);
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She11Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She11Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            default: break;
+                        }
+                        break;
+                    }
+                case PulseModeName.SHEP_13:
+                    {
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She13Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She13Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            default: break;
+                        }
+                        break;
+                    }
+                case PulseModeName.SHEP_15:
+                    {
+                        switch (pulse_mode.AltMode)
+                        {
+                            case PulseAlternativeMode.Default:
+                                return CustomPwm.She15Default.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            case PulseAlternativeMode.Alt1:
+                                return CustomPwm.She15Alt1.GetPwm(amplitude, sin_time * sin_angle_freq + initial_phase);
+                            default: break;
+                        }
+                        break;
                     }
                 default: break;
             }
@@ -809,17 +841,17 @@ namespace VvvfSimulator
             {
                 double sine_x = sin_angle_freq * sin_time + initial_phase;
                 int[] keys = [];
-                if(pulse_name == PulseModeName.HOP_5) keys = [9, 2, 13, 2, 17, 2, 21, 2, 25, 2, 29, 2, 33, 2, 37, 2,];
-                else if(pulse_name == PulseModeName.HOP_7) keys = [15, 4, 15, 3, 7, 1, 11, 2, 19, 4, 23, 4, 27, 4, 31, 4, 35, 4, 39, 4,];
+                if (pulse_name == PulseModeName.HOP_5) keys = [9, 2, 13, 2, 17, 2, 21, 2, 25, 2, 29, 2, 33, 2, 37, 2,];
+                else if (pulse_name == PulseModeName.HOP_7) keys = [15, 4, 15, 3, 7, 1, 11, 2, 19, 4, 23, 4, 27, 4, 31, 4, 35, 4, 39, 4,];
                 else if (pulse_name == PulseModeName.HOP_9) keys = [21, 6, 13, 3, 17, 4, 25, 6, 29, 6, 33, 6, 37, 6];
                 else if (pulse_name == PulseModeName.HOP_11) keys = [27, 8, 19, 5, 23, 6, 31, 8, 35, 8, 39, 8];
                 else if (pulse_name == PulseModeName.HOP_13) keys = [25, 7, 29, 8, 33, 10, 37, 10];
                 else if (pulse_name == PulseModeName.HOP_15) keys = [31, 9, 35, 10, 39, 12];
                 else if (pulse_name == PulseModeName.HOP_17) keys = [37, 11];
-                int alt = ((int)pulse_mode.AltMode + 1) > (keys.Length / 2) ? 0 : (int)pulse_mode.AltMode;
+                int alt = (int)pulse_mode.AltMode + 1 > keys.Length / 2 ? 0 : (int)pulse_mode.AltMode;
                 return GetHopPulse(sine_x, amplitude, keys[2 * alt], keys[2 * alt + 1]);
             }
-                
+
 
             if (
                 pulse_name == PulseModeName.CHMP_3 ||

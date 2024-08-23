@@ -42,6 +42,8 @@
     <system:String x:Key="MainWindow.Menu.Generate.SourceCode.RPi3">RPi3</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio">音声</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF">VVVF</system:String>
+    <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF.Line">線間電圧</system:String>
+    <system:String x:Key="MainWindow.Menu.Generate.Audio.VVVF.Phases">相電圧</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Audio.Train">車両</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Movie">動画</system:String>
     <system:String x:Key="MainWindow.Menu.Generate.Movie.Control">制御状態</system:String>
@@ -91,7 +93,8 @@
     <system:String x:Key="MainWindow.TabControl.Accelerate">力行</system:String>
     <system:String x:Key="MainWindow.TabControl.Brake">回生</system:String>
 
-    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf">VVVF音声の生成：</system:String>
+    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf.Line">線間出力音声の生成：</system:String>
+    <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Vvvf.Phases">相出力音声の生成：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Audio.Train">列車音声の生成：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Movie.Control.Original">制御状態（デザイン1）の動画生成：</system:String>
     <system:String x:Key="MainWindow.TaskDescription.Generate.Movie.Control.Original2">制御状態（デザイン2）の動画生成：</system:String>
@@ -149,6 +152,8 @@
     <system:String x:Key="TaskViewer.Status.Canceled">中断済</system:String>
     <system:String x:Key="TaskViewer.Status.Complete">完了</system:String>
     <system:String x:Key="TaskViewer.Status.Running">実行中</system:String>
+
+    <system:String x:Key="BitmapViewer.Title.Default">画像表示</system:String>
 
     <system:String x:Key="TrainAudio.SettingWindow.Title">列車音環境設定</system:String>
     

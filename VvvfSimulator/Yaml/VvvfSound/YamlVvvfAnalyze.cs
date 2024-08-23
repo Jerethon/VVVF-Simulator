@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
-using static VvvfSimulator.VvvfCalculate;
-using static VvvfSimulator.VvvfStructs;
+using static VvvfSimulator.Vvvf.Calculate;
+using static VvvfSimulator.Vvvf.Struct;
 
 namespace VvvfSimulator.Yaml.VvvfSound
 {
@@ -35,12 +33,12 @@ namespace VvvfSimulator.Yaml.VvvfSound
         public int Level { get; set; } = 2;
         public YamlMasconData MasconData { get; set; } = new();
         public YamlMinSineFrequency MinimumFrequency { get; set; } = new();
-        public List<YamlControlData> AcceleratePattern { get; set; } = new();
+        public List<YamlControlData> AcceleratePattern { get; set; } = [];
         public void SortAcceleratePattern(bool Inverse)
         {
             AcceleratePattern.Sort((a, b) => Math.Sign(Inverse ? (a.ControlFrequencyFrom - b.ControlFrequencyFrom) : (b.ControlFrequencyFrom - a.ControlFrequencyFrom)));
         }
-        public List<YamlControlData> BrakingPattern { get; set; } = new();
+        public List<YamlControlData> BrakingPattern { get; set; } = [];
         public void SortBrakingPattern(bool Inverse)
         {
             BrakingPattern.Sort((a, b) => Math.Sign(Inverse ? (a.ControlFrequencyFrom - b.ControlFrequencyFrom) : (b.ControlFrequencyFrom - a.ControlFrequencyFrom)));
@@ -420,7 +418,7 @@ namespace VvvfSimulator.Yaml.VvvfSound
 
                     public class YamlAsyncParameterCarrierFreqTable
                     {
-                        public List<YamlAsyncParameterCarrierFreqTableValue> CarrierFrequencyTableValues { get; set; } = new List<YamlAsyncParameterCarrierFreqTableValue>();
+                        public List<YamlAsyncParameterCarrierFreqTableValue> CarrierFrequencyTableValues { get; set; } = [];
                         public class YamlAsyncParameterCarrierFreqTableValue
                         {
                             public double ControlFrequencyFrom { get; set; } = -1;

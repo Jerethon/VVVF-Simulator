@@ -71,6 +71,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She15Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She15Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She13Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She13Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She11Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She11Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She7Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She7Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She9Alt2.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She9Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She9Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She5Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She5Alt2.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She5Default.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She3Alt1.bin" />
+		<EmbeddedResource Include="Vvvf\SwitchAngle\She3Default.bin" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="NAudio" Version="2.2.1" />
 		<PackageReference Include="OpenCvSharp4" Version="4.9.0.20240103" />
 		<PackageReference Include="OpenCvSharp4.runtime.win" Version="4.9.0.20240103" />

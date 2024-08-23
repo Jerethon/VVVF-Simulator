@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using VvvfSimulator.Yaml.VvvfSound;
-using static VvvfSimulator.VvvfCalculate;
+using static VvvfSimulator.Vvvf.Calculate;
 using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData;
 using static VvvfSimulator.Yaml.VvvfSound.YamlVvvfSoundData.YamlControlData.YamlAsyncParameter.YamlAsyncParameterCarrierFreq.YamlAsyncParameterCarrierFreqTable;
 
@@ -311,7 +311,7 @@ namespace VvvfSimulator.Generation.Pi3Generator
 
                 }
 
-                if (data.PulseMode.PulseName == VvvfStructs.PulseMode.PulseModeName.Async)
+                if (data.PulseMode.PulseName == Vvvf.Struct.PulseMode.PulseModeName.Async)
                 {
                     {
                         YamlControlData.YamlAsyncParameter.YamlAsyncParameterCarrierFreq async = data.AsyncModulationData.CarrierWaveData;
